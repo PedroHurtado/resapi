@@ -4,24 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+//import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.restapi.Domain.PizzaRepository;
 import com.example.restapi.common.exceptions.NotfoundException;
 
 @RestController
 @RequestMapping("/api/v1/pizzas")
+//@CrossOrigin(origins = "*", maxAge = 86400 ,allowCredentials = "true")
+//@CrossOrigin(origins = "*", maxAge = 86400)
 public class PizzaController {
 
     public record Pizza(String id, String name) {
     }
 
+    private final PizzaRepository repository;
+    public PizzaController(PizzaRepository repository){
+        this.repository = repository;
+    }
     private final List<Pizza> pizzas = new ArrayList<>() {
         {
             add(new Pizza("1", "carbonara"));
@@ -30,11 +39,11 @@ public class PizzaController {
         }
     };
 
-    @PostMapping
+    /*@PostMapping
     public ResponseEntity<?> post(@RequestBody Pizza pizza) {
         pizzas.add(pizza);
         return ResponseEntity.status(201).body(pizza);
-    }
+    }*/
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @RequestBody Pizza pizza) {
@@ -53,8 +62,15 @@ public class PizzaController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(pizzas);
+    public ResponseEntity<?> getAll(
+
+    @RequestParam(required = false) String name,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size
+
+    ) {
+        //return ResponseEntity.ok(pizzas.stream().filter(p->p.name.equals(name)));
+        return ResponseEntity.ok(repository.getAll());
     }
 
     @GetMapping(path = "/{id}")
