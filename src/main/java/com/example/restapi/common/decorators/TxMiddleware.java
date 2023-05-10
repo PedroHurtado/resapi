@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import an.awesome.pipelinr.Command;
 
 @Component
-@Order(1)
+@Order(2)
 class TxMiddleware implements Command.Middleware {
 
     @Override

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import an.awesome.pipelinr.Command;
 
 @Component
-@Order(0)
+@Order(1)
 class LoggingMiddleware implements Command.Middleware {
 
     @Override

@@ -13,9 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restapi.Domain.PizzaRepository;
 import com.example.restapi.Domain.Entities.Pizza;
+import com.example.restapi.common.validations.AbstractCommandValidator;
 
 import an.awesome.pipelinr.Command;
 import an.awesome.pipelinr.Pipeline;
+
+import static br.com.fluentvalidator.predicate.ObjectPredicate.nullValue;
+import static java.util.function.Predicate.not;
 
 @Configuration
 public class AddPizzas {
@@ -24,6 +28,22 @@ public class AddPizzas {
     {
 
     };
+
+    @Component
+    public class ValidateCreatePizza extends AbstractCommandValidator<RequestCreatePizza,Pizza>{
+
+        @Override
+        public void rules() {
+
+            ruleFor(RequestCreatePizza::name)
+                .must(not(nullValue()))
+                .withMessage("El nombre es requerido")
+                .withFieldName("name");
+                
+            
+        }
+
+    }
 
     public record ResponseCreatePizza(String id,String name){};
 
@@ -55,9 +75,7 @@ public class AddPizzas {
             this.repository = repository;
         }        
         @Override
-        public Pizza handle(RequestCreatePizza command) {           
-           
-            //validaciones
+        public Pizza handle(RequestCreatePizza command) {                     
             System.out.println("handler");
             var pizza = Pizza.create(UUID.randomUUID().toString(), command.name);
             repository.add(pizza);
