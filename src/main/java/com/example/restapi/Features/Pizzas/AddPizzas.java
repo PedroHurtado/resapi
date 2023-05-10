@@ -14,10 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.restapi.Domain.PizzaRepository;
 import com.example.restapi.Domain.Entities.Pizza;
 
+import an.awesome.pipelinr.Command;
+import an.awesome.pipelinr.Pipeline;
+
 @Configuration
 public class AddPizzas {
     
-    public record RequestCreatePizza(String name){};
+    public record RequestCreatePizza(String name) implements Command<Pizza>
+    {
+
+    };
 
     public record ResponseCreatePizza(String id,String name){};
 
@@ -25,41 +31,34 @@ public class AddPizzas {
     @RequestMapping("/api/v1/pizzas")
     public class Controller{
 
-        private final IHandler handler;
-        public Controller(IHandler handler){
-            this.handler = handler;
+        private final Pipeline pipeline;
+        public Controller(Pipeline pipeline){
+            this.pipeline = pipeline;
         }
         @PostMapping
         public ResponseEntity<?> add(@RequestBody RequestCreatePizza command){
             //adaptar
             
-            var pizza = handler.add(command);
+            var pizza = pipeline.send(command);
+            
             var response = new ResponseCreatePizza(pizza.getId(), pizza.getName());
             return ResponseEntity.status(201).body(response);
         }
     }
    
-    //puerto primario
-    public interface IHandler{
-        Pizza add(RequestCreatePizza command);
-    }
-
     @Component
-    public class Handler implements IHandler{
+    public class Handler implements Command.Handler<RequestCreatePizza,Pizza>{
 
         
         private final PizzaRepository repository;
         public Handler(PizzaRepository repository){
             this.repository = repository;
-        }
+        }        
         @Override
-        public Pizza add(RequestCreatePizza command) {   
-            
-            //Madiator Decorator
-            //trasacciones
-            //logger
+        public Pizza handle(RequestCreatePizza command) {           
+           
             //validaciones
-
+            System.out.println("handler");
             var pizza = new Pizza(UUID.randomUUID().toString(), command.name);
             repository.add(pizza);
             return pizza;
