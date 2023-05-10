@@ -59,10 +59,12 @@ public class AddPizzas {
            
             //validaciones
             System.out.println("handler");
-            var pizza = new Pizza(UUID.randomUUID().toString(), command.name);
+            var pizza = Pizza.create(UUID.randomUUID().toString(), command.name);
             repository.add(pizza);
             return pizza;
         }
 
     }
+
+   
 }
