@@ -3,39 +3,50 @@ package com.example.restapi.infraestructure;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.example.restapi.Domain.PizzaRepository;
 import com.example.restapi.Domain.Entities.Pizza;
 
 import an.awesome.pipelinr.Pipeline;
 
-@Component
-//adaptador secundario
+@Repository
+// adaptador secundario
 public class PizzaRepositoryImpl implements PizzaRepository {
+
+    private final PizzaRepositoryJpa repository;
 
     public List<Pizza> pizzas = new ArrayList<>();
     private final Pipeline pipeline;
-    public PizzaRepositoryImpl(Pipeline pipeline){
+
+    public PizzaRepositoryImpl(Pipeline pipeline, PizzaRepositoryJpa repository) {
         this.pipeline = pipeline;
+        this.repository = repository;
     }
+
     @Override
     public void add(Pizza pizza) {
-        //antes de guadar
-        
-        for(var ev:pizza.events){
+        // antes de guadar
+
+        var pizzaJpa = new PizzaJpa();
+        pizzaJpa.id = pizza.getId();
+        pizzaJpa.name = pizza.getName();
+
+        for (var ev : pizza.events) {
             pipeline.send(ev);
         }
-        
-        pizzas.add(pizza);
+
+        repository.save(pizzaJpa);
 
         System.out.println("transaction terminada");
 
-        //siempre antes por mantener transaccionalidad
-        //no hacer así
-        /*for(var ev:pizza.events){
-            pipeline.send(ev);
-        }*/
+        // siempre antes por mantener transaccionalidad
+        // no hacer así
+        /*
+         * for(var ev:pizza.events){
+         * pipeline.send(ev);
+         * }
+         */
     }
 
     @Override
@@ -58,7 +69,11 @@ public class PizzaRepositoryImpl implements PizzaRepository {
 
     @Override
     public List<Pizza> getAll() {
-       return pizzas;
+        List<Pizza> pizzas = new ArrayList<>();        
+        for(PizzaJpa pizza:repository.findAll()){
+            pizzas.add(new JpaMapPizza(pizza.id, pizza.name));
+        }
+        return pizzas;        
     }
-    
+
 }
