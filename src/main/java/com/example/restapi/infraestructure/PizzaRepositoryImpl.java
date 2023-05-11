@@ -3,6 +3,10 @@ package com.example.restapi.infraestructure;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+
 import org.springframework.stereotype.Repository;
 
 import com.example.restapi.Domain.PizzaRepository;
@@ -68,12 +72,10 @@ public class PizzaRepositoryImpl implements PizzaRepository {
     }
 
     @Override
-    public List<Pizza> getAll() {
-        List<Pizza> pizzas = new ArrayList<>();        
-        for(PizzaJpa pizza:repository.findAll()){
-            pizzas.add(new JpaMapPizza(pizza.id, pizza.name));
-        }
-        return pizzas;        
+    public Stream<Pizza> getAll() {
+        
+        return StreamSupport.stream(repository.findAll().spliterator(), false)
+            .map(p->new JpaMapPizza(p.id, p.name));         
     }
 
 }

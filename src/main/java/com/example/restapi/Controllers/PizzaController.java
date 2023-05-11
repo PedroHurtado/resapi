@@ -24,6 +24,8 @@ import com.example.restapi.common.exceptions.NotfoundException;
 //@CrossOrigin(origins = "*", maxAge = 86400)
 public class PizzaController {
 
+    public record PizzaRequest(String id, String name) {
+    }
     public record Pizza(String id, String name) {
     }
 
@@ -70,7 +72,10 @@ public class PizzaController {
 
     ) {
         //return ResponseEntity.ok(pizzas.stream().filter(p->p.name.equals(name)));
-        return ResponseEntity.ok(repository.getAll());
+        return ResponseEntity.ok(
+            repository.getAll().map(p->new PizzaRequest(p.getId(), p.getName()))
+        
+        );
     }
 
     @GetMapping(path = "/{id}")

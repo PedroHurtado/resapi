@@ -1,6 +1,9 @@
 package com.example.restapi.Domain;
 
-import java.util.List;
+
+
+
+import java.util.stream.Stream;
 
 import com.example.restapi.Domain.Entities.Pizza;
 
@@ -10,5 +13,5 @@ public interface PizzaRepository {
     void update(Pizza pizza);
     void remove(Pizza pizza);
     Pizza get(String id);
-    List<Pizza> getAll();
+    Stream<Pizza> getAll();
 }
